@@ -12,6 +12,9 @@ type result = {
   anchor: string;
   body: string;
   objectID: string;
+  hierarchy: {
+    [key: string]: string;
+  };
   _highlightResult: {
     content:
       | {
@@ -60,7 +63,7 @@ export default function SearchFilamentphpDocumentation() {
         hitsPerPage: 15,
       })
       .then((res) => {
-        return Object.entries(_.groupBy(res.hits, "anchor")) || [];
+        return Object.entries(_.groupBy(res.hits, "hierarchy.lvl1")) || [];
       })
       .catch((err) => {
         showToast(Toast.Style.Failure, "Error searching filamentphp docs", err.message);
@@ -74,6 +77,7 @@ export default function SearchFilamentphpDocumentation() {
       setIsLoading(false);
     })();
   }, []);
+
   return (
     <List
       throttle={true}
@@ -91,7 +95,11 @@ export default function SearchFilamentphpDocumentation() {
             <List.Item
               id={hit.objectID}
               key={hit.objectID}
-              title={hit.anchor}
+              title={
+                hit.hierarchy.lvl1 
+                + ' ' + (hit.hierarchy.lvl2 !== null ? hit.hierarchy.lvl2 : '' )
+                + ' ' + (hit.hierarchy.lvl3 !== null ? hit.hierarchy.lvl3 : '' ) 
+              }
               actions={
                 <ActionPanel title={(hit.url)}>
                   <Action.OpenInBrowser url={(hit.url)} />
